@@ -77,27 +77,14 @@ This app is **Vite + React**, not plain static HTML. **Do not use “Live Server
 
 ## Deploying on Render (PostgreSQL + API)
 
-1. **Create PostgreSQL** in the Render dashboard (**New → PostgreSQL**). After it is ready, open the database and copy **Internal Database URL** (use **External** only if your API will not run on Render in the same region/plan that can reach internal URLs).
+Short version:
 
-2. **Create a Web Service** for this repo (same GitHub project). Example:
-   - **Build command:** `cd server && npm ci`
-   - **Start command:** `cd server && node index.js`  
-     Render injects **`PORT`**; the server reads it automatically.
+1. **PostgreSQL** → copy **Internal Database URL** → use as **`DATABASE_URL`** on the API.
+2. **Web Service** (API): build `cd server && npm ci`, start `cd server && node index.js`, set env vars (`DATABASE_URL`, `JWT_SECRET`, `ADMIN_*`, **`CORS_ORIGIN`** = your static site URL).
+3. After first deploy: **Shell** → `cd server && npm run db:setup`.
+4. **Static Site**: build `npm ci && npm run build`, publish **`dist`**, set **`VITE_API_URL`** = public API `https://…` origin (no trailing slash).
 
-3. **Environment variables** on that Web Service (match `server/env.example`):
-   - **`DATABASE_URL`** — paste the URL from step 1.
-   - **`JWT_SECRET`**, **`ADMIN_USERNAME`**, **`ADMIN_PASSWORD`** — set strong values for production.
-   - **`CORS_ORIGIN`** — your deployed frontend origin(s), e.g. `https://your-frontend.onrender.com` (comma-separated for several).
-
-   The API enables **TLS for `pg`** when `DATABASE_URL` is not localhost / Docker `db`. To override, set **`DATABASE_SSL=true`** or **`DATABASE_SSL=false`**.
-
-4. **Migrate and seed once** (Render **Shell** on the Web Service, or a one-off deploy script):
-
-   ```sh
-   cd server && npm run db:setup
-   ```
-
-5. **Frontend (Static Site)** — build with `npm ci && npm run build`, publish **`dist`**, and set **`VITE_API_URL`** to your API’s public `https://…` origin (no trailing slash) so the browser can call the API from another Render hostname.
+**Full step-by-step** (URLs, health checks, CORS, cold starts, custom domains, troubleshooting): **[docs/DEPLOY-RENDER.md](docs/DEPLOY-RENDER.md)**.
 
 ## Tech stack
 
