@@ -9,52 +9,50 @@ const DebugPanel = () => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   useEffect(() => {
-    // Use getItems() to fetch items data
-    getItems().then(itemsData => {
+    getItems().then((itemsData) => {
       setItems(itemsData);
     });
   }, []);
 
   useEffect(() => {
-    // setImages should only be called after mount, not synchronously
     setTimeout(() => {
-      setImages(getAvailableImages());
+      getAvailableImages().then(setImages);
     }, 0);
   }, []);
 
   const handleRefresh = () => {
-    refreshItems();
-    const availableImages = getAvailableImages();
-    setImages(availableImages);
-    
-    getItems().then(itemsData => {
+    refreshItems().then((itemsData) => {
       setItems(itemsData);
+      getAvailableImages().then(setImages);
     });
   };
 
   return (
     <div className={`debug-panel ${isExpanded ? 'expanded' : ''}`}>
-      <button 
-        className="debug-toggle"
-        onClick={() => setIsExpanded(!isExpanded)}
-      >
+      <button type="button" className="debug-toggle" onClick={() => setIsExpanded(!isExpanded)}>
         {isExpanded ? '🔧 Hide Debug' : '🔧 Show Debug'}
       </button>
-      
+
       {isExpanded && (
         <div className="debug-content">
-          <button onClick={handleRefresh} className="refresh-button">
+          <button type="button" onClick={handleRefresh} className="refresh-button">
             🔄 Refresh Items
           </button>
-          
+
           <h4>Available Images:</h4>
           <pre>{JSON.stringify(images, null, 2)}</pre>
-          
+
           <h4>Items with Image Paths:</h4>
-          <pre>{JSON.stringify(items.map(item => ({ 
-            name: item.name, 
-            image: item.image 
-          })), null, 2)}</pre>
+          <pre>
+            {JSON.stringify(
+              items.map((item) => ({
+                name: item.name,
+                image: item.image,
+              })),
+              null,
+              2
+            )}
+          </pre>
         </div>
       )}
     </div>
@@ -62,4 +60,3 @@ const DebugPanel = () => {
 };
 
 export default DebugPanel;
-

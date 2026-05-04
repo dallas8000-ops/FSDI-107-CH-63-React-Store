@@ -7,10 +7,12 @@
 }
 
 .about-hero {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  /* Slightly deeper stops for better text contrast (WCAG) */
+  background: linear-gradient(135deg, #5568d4 0%, #5b3d86 100%);
+  color: #f8fafc;
   padding: 4rem 2rem;
   text-align: center;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
 }
 
 .about-hero h1 {
@@ -76,14 +78,12 @@
   transform: translateY(-50%);
   width: 24px;
   height: 24px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #4f5fc9 0%, #5a3a7a 100%);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
-  font-weight: bold;
-  font-size: 0.8rem;
+  /* Decorative bullet only (no text inside pseudo-element) */
 }
 
 .contact-info {
@@ -104,13 +104,22 @@
   font-weight: 700;
 }
 
+.contact-info a {
+  color: #5568d3;
+  font-weight: 600;
+}
+
+.contact-info a:hover {
+  text-decoration: underline;
+}
+
 /* Dark mode styles */
 body.dark-mode .about {
   background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
 }
 
 body.dark-mode .about-hero {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #5568d4 0%, #5b3d86 100%);
 }
 
 body.dark-mode .about-content {
@@ -148,6 +157,10 @@ body.dark-mode .contact-info p {
 
 body.dark-mode .contact-info strong {
   color: #667eea;
+}
+
+body.dark-mode .contact-info a {
+  color: #8ab4ff;
 }
 
 @media (max-width: 768px) {

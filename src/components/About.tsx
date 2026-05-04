@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { IconInfoCircle, IconShoppingCart } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
-import Footer from './Footer';
 import '../styles/About.css';
 
 function About() {
@@ -18,7 +17,7 @@ function About() {
   return (
     <main className="about">
       <section className="about-hero">
-        <h1>🖥️ About Computer Gadgets Store <IconInfoCircle size={32} color="#F7B32B" style={{verticalAlign: 'middle', marginLeft: 8}} /></h1>
+        <h1>🖥️ Computer Gadget Store <IconInfoCircle size={32} color="#F7B32B" style={{verticalAlign: 'middle', marginLeft: 8}} /></h1>
         <p className="subtitle">Your trusted destination for premium computer technology</p>
         <Link to="/cart" style={{ textDecoration: 'none' }}>
           <button
@@ -64,26 +63,33 @@ function About() {
 
         <div className="about-section">
           <h2>Contact Information</h2>
-          <p>
-            <span
-              style={{ color: 'blue', fontFamily: 'Lucida Handwriting', cursor: 'pointer' }}
-              onMouseEnter={showEmailInformation}
-              onMouseLeave={hideEmailInformation}
-            >
-              {isEmailVisible ? 'dallas8000@gmail.com' : 'Hover here to show my email'}
-            </span>
-          </p>
+          <div className="contact-info">
+            <p>
+              <strong>Business address</strong>
+              <br />
+              1234 Tech Avenue, Suite 100
+              <br />
+              San Diego, CA 92101
+            </p>
+            <p>
+              <strong>Phone</strong>
+              <br />
+              <a href="tel:+15551234567">(555) 123-4567</a>
+            </p>
+            <p>
+              <strong>Email</strong>
+              <br />
+              <span
+                style={{ fontFamily: 'Lucida Handwriting', cursor: 'pointer' }}
+                onMouseEnter={showEmailInformation}
+                onMouseLeave={hideEmailInformation}
+              >
+                {isEmailVisible ? 'dallas8000@gmail.com' : 'Hover here to show my email'}
+              </span>
+            </p>
+          </div>
         </div>
       </section>
-    <footer className="about-footer" style={{background: '#222', color: '#fff', padding: '2rem 0', marginTop: '2rem'}}>
-      <div style={{maxWidth: '900px', margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
-        <div style={{marginBottom: '0.5rem', fontWeight: 'bold', fontSize: '1.1rem'}}>Business Address</div>
-        <div>1234 Tech Avenue, Suite 100, San Diego, CA 92101</div>
-        <div style={{marginTop: '0.5rem', fontWeight: 'bold', fontSize: '1.1rem'}}>Business Contact</div>
-        <div>Phone: (555) 123-4567 &nbsp;|&nbsp; Email: dallas8000@gmail.com</div>
-      </div>
-    </footer>
-    <Footer />
     </main>
   );
 }

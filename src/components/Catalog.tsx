@@ -8,7 +8,12 @@ import '../styles/Catalog.css';
 
 import GlobalContext from '../state/globalContext';
 
-const Catalog = ({ setItems: setParentItems, items: _parentItems }) => {
+/** Parent sync is optional (route uses `<Catalog />` without props). */
+type CatalogProps = {
+  setItems?: (items: unknown[]) => void;
+};
+
+const Catalog = ({ setItems: setParentItems }: CatalogProps) => {
   const { cart, addProductToCart, removeProductFromCart } = useContext(GlobalContext);
   const [items, setItems] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
@@ -16,26 +21,11 @@ const Catalog = ({ setItems: setParentItems, items: _parentItems }) => {
   const [modalProduct, setModalProduct] = useState(null);
   const [modalIndex, setModalIndex] = useState(null);
 
-  // Open modal with index
   const openModal = (item, idx) => {
     setModalProduct(item);
     setModalIndex(idx);
   };
 
-  // Keyboard navigation for modal
-  React.useEffect(() => {
-    if (modalProduct == null) return;
-    const handleKeyDown = (e) => {
-      if (e.key === 'Escape') setModalProduct(null);
-      if (e.key === 'ArrowLeft') handlePrev();
-      if (e.key === 'ArrowRight') handleNext();
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-    // eslint-disable-next-line
-  }, [modalProduct, modalIndex, items]);
-
-  // Flat list of all products for modal navigation
   const flatItems = React.useMemo(() => items, [items]);
   const handlePrev = () => {
     if (modalIndex == null || flatItems.length < 2) return;
@@ -50,14 +40,26 @@ const Catalog = ({ setItems: setParentItems, items: _parentItems }) => {
     setModalIndex(nextIdx);
   };
 
+  React.useEffect(() => {
+    if (modalProduct == null) return;
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setModalProduct(null);
+        setModalIndex(null);
+      }
+      if (e.key === 'ArrowLeft') handlePrev();
+      if (e.key === 'ArrowRight') handleNext();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- match original keyboard + modal navigation
+  }, [modalProduct, modalIndex, items]);
+
   useEffect(() => {
     getItems().then((data) => {
-      console.log('Catalog received items:', data);
       setItems(data);
-      if (setParentItems) {
-        setParentItems(data);
-      }
-    }).catch(err => console.error('Error loading items:', err));
+      setParentItems?.(data);
+    });
   }, [setParentItems]);
 
   const handleEditItem = (item) => {
@@ -66,11 +68,9 @@ const Catalog = ({ setItems: setParentItems, items: _parentItems }) => {
   };
 
   const handleSaveEdit = () => {
-    const updatedItems = items.map((item) =>
-      item.id === editingItem.id ? editingItem : item
-    );
+    const updatedItems = items.map((item) => (item.id === editingItem.id ? editingItem : item));
     setItems(updatedItems);
-    setParentItems(updatedItems);
+    setParentItems?.(updatedItems);
     setIsEditing(false);
     setEditingItem(null);
   };
@@ -78,17 +78,17 @@ const Catalog = ({ setItems: setParentItems, items: _parentItems }) => {
   const handleDeleteItem = (id) => {
     const updatedItems = items.filter((item) => item.id !== id);
     setItems(updatedItems);
-    setParentItems(updatedItems);
+    setParentItems?.(updatedItems);
   };
 
   return (
     <main className="catalog">
       <div className="catalog-header">
-        <h2>Our Products <IconDeviceImac size={28} color="#43AA8B" style={{verticalAlign: 'middle', marginLeft: 8}} /></h2>
-        <button
-          className="edit-mode-toggle"
-          onClick={() => setIsEditing(!isEditing)}
-        >
+        <h2>
+          Our Products{' '}
+          <IconDeviceImac size={28} color="#43AA8B" style={{ verticalAlign: 'middle', marginLeft: 8 }} />
+        </h2>
+        <button type="button" className="edit-mode-toggle" onClick={() => setIsEditing(!isEditing)}>
           {isEditing ? '✓ Done Editing' : '✎ Edit Catalog'}
         </button>
       </div>
@@ -102,9 +102,7 @@ const Catalog = ({ setItems: setParentItems, items: _parentItems }) => {
               <input
                 type="text"
                 value={editingItem.name}
-                onChange={(e) =>
-                  setEditingItem({ ...editingItem, name: e.target.value })
-                }
+                onChange={(e) => setEditingItem({ ...editingItem, name: e.target.value })}
               />
             </label>
             <label>
@@ -112,9 +110,7 @@ const Catalog = ({ setItems: setParentItems, items: _parentItems }) => {
               <input
                 type="text"
                 value={editingItem.description}
-                onChange={(e) =>
-                  setEditingItem({ ...editingItem, description: e.target.value })
-                }
+                onChange={(e) => setEditingItem({ ...editingItem, description: e.target.value })}
               />
             </label>
             <label>
@@ -153,16 +149,17 @@ const Catalog = ({ setItems: setParentItems, items: _parentItems }) => {
                 onChange={(e) =>
                   setEditingItem({
                     ...editingItem,
-                    discount: e.target.value ? parseInt(e.target.value) : null,
+                    discount: e.target.value ? parseInt(e.target.value, 10) : null,
                   })
                 }
               />
             </label>
             <div className="edit-buttons">
-              <button className="save-btn" onClick={handleSaveEdit}>
+              <button type="button" className="save-btn" onClick={handleSaveEdit}>
                 Save Changes
               </button>
               <button
+                type="button"
                 className="cancel-btn"
                 onClick={() => {
                   setEditingItem(null);
@@ -182,11 +179,11 @@ const Catalog = ({ setItems: setParentItems, items: _parentItems }) => {
             <p>Loading products...</p>
           </div>
         ) : (
-          // Group items by date
           Object.entries(
             items.reduce((acc, item) => {
-              acc[item.date] = acc[item.date] || [];
-              acc[item.date].push(item);
+              const d = item.date || 'Undated';
+              acc[d] = acc[d] || [];
+              acc[d].push(item);
               return acc;
             }, {})
           ).map(([date, group]) => (
@@ -217,20 +214,37 @@ const Catalog = ({ setItems: setParentItems, items: _parentItems }) => {
                       exit={{ opacity: 0, y: 30 }}
                       transition={{ duration: 0.45, delay: idx * 0.07 }}
                     >
-                      <div onClick={() => openModal(item, flatItems.findIndex(i => i.id === item.id))} style={{cursor: 'pointer'}}>
-                        <ItemCard item={item} cart={cart} addProductToCart={addProductToCart} removeProductFromCart={removeProductFromCart} />
+                      <div
+                        onClick={() => openModal(item, flatItems.findIndex((i) => i.id === item.id))}
+                        style={{ cursor: 'pointer' }}
+                        role="presentation"
+                      >
+                        <ItemCard
+                          item={item}
+                          cart={cart}
+                          addProductToCart={addProductToCart}
+                          removeProductFromCart={removeProductFromCart}
+                        />
                       </div>
                       {isEditing && (
                         <div className="item-edit-controls">
                           <button
+                            type="button"
                             className="edit-btn"
-                            onClick={() => handleEditItem(item)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleEditItem(item);
+                            }}
                           >
                             Edit
                           </button>
                           <button
+                            type="button"
                             className="delete-btn"
-                            onClick={() => handleDeleteItem(item.id)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteItem(item.id);
+                            }}
                           >
                             Delete
                           </button>
@@ -244,8 +258,16 @@ const Catalog = ({ setItems: setParentItems, items: _parentItems }) => {
           ))
         )}
       </div>
-    <ProductModal product={modalProduct} onClose={() => setModalProduct(null)} onPrev={flatItems.length > 1 ? handlePrev : undefined} onNext={flatItems.length > 1 ? handleNext : undefined} />
-  </main>
+      <ProductModal
+        product={modalProduct}
+        onClose={() => {
+          setModalProduct(null);
+          setModalIndex(null);
+        }}
+        onPrev={flatItems.length > 1 ? handlePrev : undefined}
+        onNext={flatItems.length > 1 ? handleNext : undefined}
+      />
+    </main>
   );
 };
 

@@ -7,9 +7,6 @@ import GlobalContext from '../state/globalContext';
 export default function Cart() {
   const { cart, removeProductFromCart, clearCart, updateCartItemQuantity } = useContext(GlobalContext);
 
-  // Debug: Log cart items on every render
-  console.log('[Cart Debug] cart:', cart);
-
   const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
   const cartTotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
 
@@ -29,19 +26,10 @@ export default function Cart() {
         <button className="clear-cart-btn" onClick={clearCart}>
           Clear Cart
         </button>
-        <button style={{marginLeft: '1rem', background: '#eee', color: '#333', border: '1px solid #ccc', borderRadius: '6px', padding: '0.5rem 1rem'}}
-          onClick={() => console.log('Current cart items:', cart)}>
-          Log Cart Items
-        </button>
       </div>
       <div className="cart-items-list">
-        {cart.map(item => {
-          // Debug: Log each cart item
-          console.log('Cart item:', item);
-          return (
+        {cart.map(item => (
             <div key={item.id} className="cart-item">
-              {/* Debug: Warn if image property is missing or empty */}
-              {(!item.image || item.image === "") && console.warn(`Cart item with id ${item.id} is missing image property!`, item)}
               {/* Actual product image with fallback */}
               <img
                 src={item.image && item.image.startsWith('/') ? item.image : `/images/${item.image}`}
@@ -89,8 +77,7 @@ export default function Cart() {
                 </button>
               </div>
             </div>
-          );
-        })}
+          ))}
       </div>
       <div className="cart-total">
         <strong>Total: ${cartTotal.toFixed(2)}</strong>

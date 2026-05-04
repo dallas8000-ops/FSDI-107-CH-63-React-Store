@@ -7,14 +7,22 @@ import './ProductModal.css';
 const ProductModal = ({ product, onClose, onPrev, onNext }) => {
   if (!product) return null;
   return (
-    <div className="modal-backdrop" tabIndex={-1} onClick={onClose}>
-      <div className="modal-content" onClick={e => e.stopPropagation()}>
-        <button className="modal-close" onClick={onClose}>&times;</button>
+    <div className="modal-backdrop" tabIndex={-1} onClick={onClose} role="presentation">
+      <div
+        className="modal-content"
+        onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="product-modal-title"
+      >
+        <button type="button" className="modal-close" onClick={onClose} aria-label="Close">
+          &times;
+        </button>
         <div className="modal-image-section">
           <img src={product.image} alt={product.name} className="modal-image" />
         </div>
         <div className="modal-details-section">
-          <h2>{product.name}</h2>
+          <h2 id="product-modal-title">{product.name}</h2>
           <p className="modal-description">{product.description}</p>
           <div className="modal-meta">
             <span className="modal-price">${product.price}</span>
